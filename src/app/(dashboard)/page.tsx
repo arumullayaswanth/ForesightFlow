@@ -21,12 +21,15 @@ const StatCard = ({ title, value, icon, comparisonText }: { title: string, value
     </Card>
 );
 
-const Comparison = ({ value }: { value: number }) => {
+const Comparison = ({ value, period }: { value: number, period: string }) => {
     const isPositive = value >= 0;
     return (
-        <span className={`flex items-center text-xs ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
-            {value.toFixed(1)}%
+        <span className="flex items-center gap-1">
+            <span className={`flex items-center text-xs ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                {value.toFixed(1)}%
+            </span>
+            <span>{period}</span>
         </span>
     );
 };
@@ -45,25 +48,25 @@ export default function DashboardPage() {
             title="Files Uploaded Today"
             value={stats.filesToday.toLocaleString('en-IN')}
             icon={<UploadCloud className="h-4 w-4 text-muted-foreground" />}
-            comparisonText={<><Comparison value={stats.filesTodayChange} /> vs yesterday</>}
+            comparisonText={<Comparison value={stats.filesTodayChange} period="vs yesterday" />}
         />
         <StatCard 
             title="Monthly Uploads"
             value={stats.monthlyUploads.toLocaleString('en-IN')}
             icon={<CalendarDays className="h-4 w-4 text-muted-foreground" />}
-            comparisonText={<><Comparison value={stats.monthlyUploadsChange} /> vs last month</>}
+            comparisonText={<Comparison value={stats.monthlyUploadsChange} period="vs last month" />}
         />
         <StatCard 
             title="Revenue Today"
             value={new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(stats.revenueToday)}
             icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
-            comparisonText={<><Comparison value={stats.revenueTodayChange} /> vs yesterday</>}
+            comparisonText={<Comparison value={stats.revenueTodayChange} period="vs yesterday" />}
         />
         <StatCard 
             title="Monthly Revenue"
             value={new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(stats.monthlyRevenue)}
             icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
-            comparisonText={<><Comparison value={stats.monthlyRevenueChange} /> vs last month</>}
+            comparisonText={<Comparison value={stats.monthlyRevenueChange} period="vs last month" />}
         />
         <StatCard 
             title="Total Files"
