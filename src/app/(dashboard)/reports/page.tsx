@@ -5,12 +5,13 @@ import { useState } from "react";
 import { getMockData } from "@/lib/data";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { ArrowDownToLine } from "lucide-react";
+import { ArrowDownToLine, Calendar as CalendarIcon } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface DailyData {
     date: string;
@@ -113,37 +114,42 @@ export default function ReportsPage() {
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <h1 className="text-2xl font-semibold">Reports</h1>
-            <div className="grid gap-4 md:grid-cols-4 md:gap-8">
-                <div className="md:col-span-1">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Filter by Date</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Calendar
-                                mode="single"
-                                selected={selectedDate}
-                                onSelect={setSelectedDate}
-                                className="rounded-md border p-0"
-                            />
-                             {selectedDate && (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-4 w-full"
-                                    onClick={() => setSelectedDate(undefined)}
-                                >
-                                    Clear
-                                </Button>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <h1 className="text-2xl font-semibold">Reports</h1>
+                <div className="flex items-center gap-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <Button
+                            variant={"outline"}
+                            className={cn(
+                            "w-[280px] justify-start text-left font-normal",
+                            !selectedDate && "text-muted-foreground"
                             )}
-                        </CardContent>
-                    </Card>
-                </div>
-                <div className="md:col-span-3">
-                    <DataTable columns={columns} data={filteredData} />
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                        <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            initialFocus
+                        />
+                        </PopoverContent>
+                    </Popover>
+                    {selectedDate && (
+                        <Button
+                            variant="outline"
+                            onClick={() => setSelectedDate(undefined)}
+                        >
+                            Clear
+                        </Button>
+                    )}
                 </div>
             </div>
+            <DataTable columns={columns} data={filteredData} />
         </main>
     );
 }
