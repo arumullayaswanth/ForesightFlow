@@ -7,13 +7,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { BarChart3, DollarSign, FileText, LayoutDashboard } from "lucide-react";
+import { BarChart3, DollarSign, FileText, LayoutDashboard, MessageCircleQuestion } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/trends", label: "Upload Trends", icon: BarChart3 },
   { href: "/revenue", label: "Revenue", icon: DollarSign },
   { href: "/reports", label: "Reports", icon: FileText },
+  { href: "/ask-ai", label: "Ask AI", icon: MessageCircleQuestion },
 ];
 
 export function DashboardNav() {
