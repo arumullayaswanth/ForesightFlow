@@ -76,15 +76,15 @@ export default function TrendsPage() {
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <h1 className="text-2xl font-semibold">Upload Trends</h1>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-center gap-2">
                     <DateRangePicker date={date} onDateChange={(newDate) => { setDate(newDate); setSelectedYear(null); }} />
-                     <Button onClick={handleForecast} disabled={isForecasting}>
+                     <Button onClick={handleForecast} disabled={isForecasting} className="w-full sm:w-auto">
                         {isForecasting ? 'Forecasting...' : 'Forecast Next 3 Months'}
                     </Button>
                 </div>
             </div>
             <TrendsOverviewChart data={chartData}>
-                <div className="flex justify-end gap-2 mt-4">
+                <div className="flex flex-wrap justify-end gap-2 mt-4">
                     {years.map(year => (
                         <Button
                             key={year}

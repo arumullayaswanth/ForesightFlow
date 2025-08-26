@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo } from "react";
@@ -46,7 +47,7 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <StatCard 
             title="Files Uploaded Today"
             value={stats.filesToday.toLocaleString('en-IN')}
@@ -71,18 +72,20 @@ export default function DashboardPage() {
             icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
             comparisonText={<Comparison value={stats.monthlyRevenueChange} period="vs last month" />}
         />
-        <StatCard 
-            title="Total Files"
-            value={stats.totalFiles.toLocaleString('en-IN')}
-            icon={<Package className="h-4 w-4 text-muted-foreground" />}
-            comparisonText="All-time files uploaded"
-        />
+         <div className="sm:col-span-2 md:col-span-1 lg:col-span-1">
+            <StatCard 
+                title="Total Files"
+                value={stats.totalFiles.toLocaleString('en-IN')}
+                icon={<Package className="h-4 w-4 text-muted-foreground" />}
+                comparisonText="All-time files uploaded"
+            />
+        </div>
       </div>
       <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
         <DailyUploadsChart data={dailyUploadsLast7Days} />
         <YearlyDistributionChart data={yearlyData} />
       </div>
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-1">
+      <div className="grid gap-4 md:gap-8">
         <AiInsights />
       </div>
     </main>

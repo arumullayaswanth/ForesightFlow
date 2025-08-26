@@ -46,7 +46,7 @@ export default function FileAnalyticsPage() {
                     icon={<HardDrive className="h-4 w-4 text-muted-foreground" />}
                 />
             </div>
-            <div className="grid gap-4 md:grid-cols-2 md:gap-8">
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 md:gap-8">
                 <FileTypeDistributionChart data={analytics.fileTypeData} />
                 <UploadsByRegionChart data={analytics.regionData} />
             </div>

@@ -54,9 +54,9 @@ export function DateRangePicker({
 
   return (
     <div className={cn("grid gap-2", className)}>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-center gap-2">
       <Select onValueChange={handleSelectChange}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Select a range" />
         </SelectTrigger>
         <SelectContent>
@@ -72,7 +72,7 @@ export function DateRangePicker({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "w-full sm:w-[300px] justify-start text-left font-normal",
               !date && "text-muted-foreground"
             )}
           >
