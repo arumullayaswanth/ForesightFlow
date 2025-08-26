@@ -21,28 +21,24 @@ export default async function LocaleLayout({
   const messages = await getMessages();
  
   return (
-    <html lang={locale}>
-      <body>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-            <SidebarProvider>
-            <Sidebar>
-                <SidebarHeader className="flex items-center gap-2 px-4">
-                    <Mountain className="h-6 w-6 text-primary" />
-                    <h2 className="text-xl font-semibold text-foreground tracking-tight">
-                    ForesightFlow
-                    </h2>
-                </SidebarHeader>
-                <SidebarContent>
-                <DashboardNav />
-                </SidebarContent>
-            </Sidebar>
-            <SidebarInset>
-                <DashboardHeader />
-                {children}
-            </SidebarInset>
-            </SidebarProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+        <SidebarProvider>
+        <Sidebar>
+            <SidebarHeader className="flex items-center gap-2 px-4">
+                <Mountain className="h-6 w-6 text-primary" />
+                <h2 className="text-xl font-semibold text-foreground tracking-tight">
+                ForesightFlow
+                </h2>
+            </SidebarHeader>
+            <SidebarContent>
+            <DashboardNav />
+            </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+            <DashboardHeader />
+            {children}
+        </SidebarInset>
+        </SidebarProvider>
+    </NextIntlClientProvider>
   );
 }
