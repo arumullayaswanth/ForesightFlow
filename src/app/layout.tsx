@@ -13,6 +13,7 @@ import {
 import { DashboardHeader } from '@/components/dashboard-header';
 import { DashboardNav } from '@/components/dashboard-nav';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'ForesightFlow Dashboard',
@@ -35,36 +36,43 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
-          <Sidebar>
-            <SidebarHeader className="flex items-center gap-2 px-4">
-              <Mountain className="h-6 w-6 text-primary" />
-              <h2 className="text-xl font-semibold text-foreground tracking-tight">
-                ForesightFlow
-              </h2>
-            </SidebarHeader>
-            <SidebarContent>
-              <DashboardNav />
-            </SidebarContent>
-            <SidebarFooter>
-              <div className="flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://picsum.photos/100" alt="Admin" data-ai-hint="person" />
-                  <AvatarFallback>A</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-sidebar-foreground">Admin</span>
-                  <span className="text-xs text-muted-foreground">admin@arealis.io</span>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SidebarProvider>
+            <Sidebar>
+              <SidebarHeader className="flex items-center gap-2 px-4">
+                <Mountain className="h-6 w-6 text-primary" />
+                <h2 className="text-xl font-semibold text-foreground tracking-tight">
+                  ForesightFlow
+                </h2>
+              </SidebarHeader>
+              <SidebarContent>
+                <DashboardNav />
+              </SidebarContent>
+              <SidebarFooter>
+                <div className="flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src="https://picsum.photos/100" alt="Admin" data-ai-hint="person" />
+                    <AvatarFallback>A</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-sidebar-foreground">Admin</span>
+                    <span className="text-xs text-muted-foreground">admin@arealis.io</span>
+                  </div>
                 </div>
-              </div>
-            </SidebarFooter>
-          </Sidebar>
-          <SidebarInset>
-            <DashboardHeader />
-            {children}
-          </SidebarInset>
-        </SidebarProvider>
-        <Toaster />
+              </SidebarFooter>
+            </Sidebar>
+            <SidebarInset>
+              <DashboardHeader />
+              {children}
+            </SidebarInset>
+          </SidebarProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
