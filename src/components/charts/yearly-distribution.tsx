@@ -60,7 +60,17 @@ export function YearlyDistributionChart({ data }: YearlyDistributionChartProps) 
           <PieChart>
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent 
+                formatter={(value, name, props) => (
+                  <div>
+                    <p className="font-medium">{props.payload?.year}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {Number(value).toLocaleString()} files
+                    </p>
+                  </div>
+                )}
+                hideLabel 
+              />}
             />
             <Pie
               data={data}

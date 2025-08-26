@@ -31,9 +31,10 @@ const chartConfig = {
 
 type TrendsOverviewChartProps = {
     data: { date: string; files: number; revenue: number }[];
+    children?: React.ReactNode;
 }
 
-export function TrendsOverviewChart({ data }: TrendsOverviewChartProps) {
+export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps) {
   return (
     <Card>
       <CardHeader>
@@ -128,6 +129,7 @@ export function TrendsOverviewChart({ data }: TrendsOverviewChartProps) {
             />
           </AreaChart>
         </ChartContainer>
+        {children}
       </CardContent>
     </Card>
   )
