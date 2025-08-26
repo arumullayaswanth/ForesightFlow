@@ -89,7 +89,10 @@ export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps
                       if (name === 'revenue') {
                         return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value))
                       }
-                      return `${Number(value).toLocaleString()} files`
+                      if (name === 'files') {
+                        return `${Number(value).toLocaleString()} files`
+                      }
+                      return value;
                     }}
                 />
               } 
