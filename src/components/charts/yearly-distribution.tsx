@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Label, Pie, PieChart } from "recharts"
+import { Label, Pie, PieChart, Cell } from "recharts"
 
 import {
   Card,
@@ -16,6 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { cn } from "@/lib/utils"
 
 const chartConfig = {
   files: {
@@ -54,7 +55,11 @@ export function YearlyDistributionChart({ data }: YearlyDistributionChartProps) 
               nameKey="year"
               innerRadius={60}
               strokeWidth={5}
+              className="stroke-background"
             >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
               <Label
                 content={({ viewBox }) => {
                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
