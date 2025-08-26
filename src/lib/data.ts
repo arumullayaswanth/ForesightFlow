@@ -33,7 +33,7 @@ function generateRandomData(date: Date): Omit<DailyData, 'date'> {
 const allTimeDailyData: DailyData[] = eachDayOfInterval({ start: ALL_TIME_START_DATE, end: ALL_TIME_END_DATE }).map(date => ({
     date: format(date, 'yyyy-MM-dd'),
     ...generateRandomData(date)
-}));
+})).reverse();
 
 function calculatePercentageChange(current: number, previous: number): number {
     if (previous === 0) {
@@ -112,10 +112,10 @@ export function getMockData() {
         totalFiles: dailyData.reduce((acc, curr) => acc + curr.files, 0),
     };
 
-    const dailyUploadsLast7Days = dailyData.slice(Math.max(dailyData.length - 7, 0)).map(d => ({
+    const dailyUploadsLast7Days = dailyData.slice(0, 7).map(d => ({
         date: format(new Date(d.date), 'MMM dd'),
         files: d.files
-    }));
+    })).reverse();
 
-    return { stats, dailyUploadsLast7Days, monthlyData, yearlyData };
+    return { stats, dailyUploadsLast7Days, monthlyData, yearlyData, dailyData: allTimeDailyData };
 }
