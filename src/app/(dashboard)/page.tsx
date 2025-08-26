@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useMemo } from "react";
 import { getMockData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Package, UploadCloud, CalendarDays, TrendingUp, TrendingDown } from "lucide-react";
@@ -38,7 +39,7 @@ const Comparison = ({ value, period }: { value: number, period: string }) => {
 
 
 export default function DashboardPage() {
-  const { stats, dailyUploadsLast7Days, yearlyData } = getMockData();
+  const { stats, dailyUploadsLast7Days, yearlyData } = useMemo(() => getMockData(), []);
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
