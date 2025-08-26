@@ -5,12 +5,14 @@ import { Mountain } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarInset,
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { DashboardNav } from '@/components/dashboard-nav';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export const metadata: Metadata = {
   title: 'ForesightFlow Dashboard',
@@ -44,6 +46,18 @@ export default function RootLayout({
             <SidebarContent>
               <DashboardNav />
             </SidebarContent>
+            <SidebarFooter>
+              <div className="flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent transition-colors">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src="https://picsum.photos/100" alt="Admin" data-ai-hint="person" />
+                  <AvatarFallback>A</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-sidebar-foreground">Admin</span>
+                  <span className="text-xs text-muted-foreground">admin@arealis.io</span>
+                </div>
+              </div>
+            </SidebarFooter>
           </Sidebar>
           <SidebarInset>
             <DashboardHeader />
