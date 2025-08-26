@@ -16,7 +16,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { cn } from "@/lib/utils"
 
 const chartConfig = {
   files: {
@@ -24,8 +23,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+const COLORS = [
+  "#2563eb",
+  "#f97316",
+  "#22c55e",
+  "#facc15",
+  "#6366f1",
+  "#ec4899",
+  "#14b8a6",
+];
+
 type YearlyDistributionChartProps = {
-    data: { year: number; files: number; fill: string }[];
+    data: { year: number; files: number }[];
 }
 
 export function YearlyDistributionChart({ data }: YearlyDistributionChartProps) {
@@ -58,7 +67,7 @@ export function YearlyDistributionChart({ data }: YearlyDistributionChartProps) 
               className="stroke-background"
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill} />
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
               <Label
                 content={({ viewBox }) => {

@@ -8,11 +8,6 @@ import { YearlyDistributionChart } from "@/components/charts/yearly-distribution
 export default function DashboardPage() {
   const { stats, dailyUploadsLast7Days, monthlyData, yearlyData } = getMockData();
 
-  const yearlyChartData = yearlyData.map((item, index) => ({
-    ...item,
-    fill: `var(--color-chart-${(index % 5) + 1})`,
-  }));
-
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
@@ -73,7 +68,7 @@ export default function DashboardPage() {
         </div>
         <div className="grid gap-4">
             <DailyUploadsChart data={dailyUploadsLast7Days} />
-            <YearlyDistributionChart data={yearlyChartData} />
+            <YearlyDistributionChart data={yearlyData} />
         </div>
       </div>
     </main>
