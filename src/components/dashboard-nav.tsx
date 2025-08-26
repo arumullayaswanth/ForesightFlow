@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { BarChart3, DollarSign, FileText, LayoutDashboard, MessageCircleQuestion, FilePieChart } from "lucide-react";
+import { BarChart3, DollarSign, FileText, LayoutDashboard, MessageCircleQuestion, FilePieChart, Settings } from "lucide-react";
 
 export function DashboardNav() {
   const pathname = usePathname();
@@ -21,19 +21,37 @@ export function DashboardNav() {
     { href: "/ask-ai", label: "Ask AI", icon: MessageCircleQuestion },
   ];
 
+  const bottomNavItems = [
+      { href: "/settings", label: "Settings", icon: Settings },
+  ]
+
 
   return (
-    <SidebarMenu>
-      {navItems.map((item) => (
-        <SidebarMenuItem key={item.href}>
-          <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label}>
-            <Link href={item.href}>
-              <item.icon />
-              <span>{item.label}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
+    <SidebarMenu className="flex flex-col justify-between flex-1">
+        <div>
+            {navItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label}>
+                    <Link href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+            ))}
+        </div>
+        <div>
+            {bottomNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label}>
+                        <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            ))}
+        </div>
     </SidebarMenu>
   );
 }
