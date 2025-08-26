@@ -6,24 +6,71 @@ import { getMockData } from "@/lib/data";
 import { TrendsOverviewChart } from "@/components/charts/trends-overview";
 import { DateRangePicker } from '@/components/date-range-picker';
 import { DateRange } from 'react-day-picker';
-import { subYears, getYear } from 'date-fns';
+import { subYears, getYear, format, addMonths } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { forecastTrends, Forecast } from '@/ai/flows/forecast-trends-flow';
+import type { MonthlyData } from '@/lib/mock-data';
+import { useToast } from '@/hooks/use-toast';
 
 export default function TrendsPage() {
-    const { monthlyData } = getMockData();
+    const { monthlyData: initialMonthlyData } = getMockData();
+    const [monthlyData, setMonthlyData] = useState<MonthlyData[]>(initialMonthlyData);
+    const [forecastData, setForecastData] = useState<Forecast[] | null>(null);
     const [date, setDate] = useState<DateRange | undefined>(undefined);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
+    const [isForecasting, setIsForecasting] = useState(false);
+    const { toast } = useToast();
 
     const years = Array.from({ length: 6 }, (_, i) => getYear(subYears(new Date(), i))).reverse();
 
     const handleYearSelection = (year: number) => {
         setSelectedYear(year);
         setDate(undefined); 
+        setForecastData(null);
+    };
+    
+    const clearFilters = () => {
+        setSelectedYear(null);
+        setDate(undefined);
+        setForecastData(null);
+    }
+
+    const handleForecast = async () => {
+        setIsForecasting(true);
+        setForecastData(null);
+        try {
+            const result = await forecastTrends({
+                monthlyData: JSON.stringify(filteredMonthlyData),
+            });
+
+            // Add a 'forecast' property to distinguish from historical data
+            const formattedForecast = result.map(f => ({...f, forecast: true }));
+            setForecastData(formattedForecast);
+            toast({
+                title: "Forecast Generated",
+                description: "The forecast for the next 3 months has been added to the chart.",
+            });
+        } catch (error) {
+            console.error("Error forecasting data:", error);
+            toast({
+                variant: "destructive",
+                title: "Forecast Failed",
+                description: "There was an error generating the forecast. Please try again.",
+            });
+        } finally {
+            setIsForecasting(false);
+        }
     };
 
     const filteredMonthlyData = selectedYear
-        ? monthlyData.filter(d => d.date.endsWith(selectedYear.toString().substring(2)))
+        ? monthlyData.filter(d => {
+            const dYear = new Date(`01 ${d.date}`).getFullYear();
+            return dYear === selectedYear;
+        })
         : monthlyData;
+
+    const chartData = forecastData ? [...filteredMonthlyData, ...forecastData] : filteredMonthlyData;
+
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -31,9 +78,12 @@ export default function TrendsPage() {
                 <h1 className="text-2xl font-semibold">Upload Trends</h1>
                 <div className="flex items-center gap-2">
                     <DateRangePicker date={date} onDateChange={(newDate) => { setDate(newDate); setSelectedYear(null); }} />
+                     <Button onClick={handleForecast} disabled={isForecasting}>
+                        {isForecasting ? 'Forecasting...' : 'Forecast Next 3 Months'}
+                    </Button>
                 </div>
             </div>
-            <TrendsOverviewChart data={filteredMonthlyData}>
+            <TrendsOverviewChart data={chartData}>
                 <div className="flex justify-end gap-2 mt-4">
                     {years.map(year => (
                         <Button
@@ -46,9 +96,9 @@ export default function TrendsPage() {
                         </Button>
                     ))}
                     <Button
-                        variant={!selectedYear ? 'default' : 'outline'}
+                        variant={!selectedYear && !date ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setSelectedYear(null)}
+                        onClick={clearFilters}
                     >
                         All
                     </Button>

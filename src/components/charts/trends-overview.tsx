@@ -1,7 +1,7 @@
 
 "use client"
 
-import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, ReferenceLine, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -30,16 +30,18 @@ const chartConfig = {
 } satisfies ChartConfig
 
 type TrendsOverviewChartProps = {
-    data: { date: string; files: number; revenue: number }[];
+    data: { date: string; files: number; revenue: number, forecast?: boolean }[];
     children?: React.ReactNode;
 }
 
 export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps) {
+  const forecastStartIndex = data.findIndex(d => d.forecast);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Trends Overview</CardTitle>
-        <CardDescription>Monthly file uploads and revenue over 6 years</CardDescription>
+        <CardDescription>Monthly file uploads and revenue. Forecasted data is shown with a dashed line.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="aspect-auto h-[350px] w-full">
@@ -85,14 +87,18 @@ export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps
               cursor={false} 
               content={
                 <ChartTooltipContent 
-                    formatter={(value, name) => {
-                      if (name === 'revenue') {
-                        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value))
-                      }
-                      if (name === 'files') {
-                        return `${Number(value).toLocaleString()} files`
-                      }
-                      return value;
+                    formatter={(value, name, props) => {
+                      const isForecast = props.payload?.forecast;
+                      const label = name === 'revenue' 
+                        ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value))
+                        : `${Number(value).toLocaleString()} files`;
+                      
+                      return (
+                        <div className="flex items-center gap-2">
+                           <span>{label}</span>
+                           {isForecast && <span className="text-xs text-muted-foreground">(Forecast)</span>}
+                        </div>
+                      )
                     }}
                 />
               } 
@@ -108,6 +114,9 @@ export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps
                     <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0}/>
                 </linearGradient>
             </defs>
+             {forecastStartIndex !== -1 && (
+              <ReferenceLine yAxisId="left" x={data[forecastStartIndex - 1]?.date} stroke="hsl(var(--border))" strokeDasharray="3 3" />
+            )}
             <Area
               dataKey="files"
               type="monotone"
@@ -117,6 +126,7 @@ export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps
               strokeWidth={2}
               yAxisId="left"
               name="Files"
+              strokeDasharray={(d) => (d.payload.forecast ? '3 3' : '0')}
             />
             <Area
               dataKey="revenue"
@@ -127,6 +137,7 @@ export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps
               strokeWidth={2}
               yAxisId="right"
               name="revenue"
+              strokeDasharray={(d) => (d.payload.forecast ? '3 3' : '0')}
             />
           </AreaChart>
         </ChartContainer>
