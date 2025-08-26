@@ -1,6 +1,6 @@
 "use client"
 
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -15,6 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { format } from "date-fns"
 
 const chartConfig = {
   revenue: {
@@ -46,6 +47,7 @@ export function TrendsOverviewChart({ data }: TrendsOverviewChartProps) {
             margin={{
               left: 12,
               right: 12,
+              top: 10,
             }}
           >
             <CartesianGrid vertical={false} />
@@ -56,14 +58,43 @@ export function TrendsOverviewChart({ data }: TrendsOverviewChartProps) {
               tickMargin={8}
               tickFormatter={(value, index) => {
                 if(data.length > 12) {
-                    return index % 12 === 0 ? value.substring(4) : ""
+                    if (index === 0) return value;
+                    const currentDate = new Date(`01 ${value}`);
+                    if (currentDate.getMonth() === 0) {
+                        return format(currentDate, "yy");
+                    }
+                    return "";
                 }
                 return value
               }}
             />
-            <YAxis yAxisId="left" stroke="hsl(var(--chart-1))" />
-            <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--chart-2))" />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            <YAxis 
+                yAxisId="left" 
+                stroke="hsl(var(--chart-1))" 
+                tickFormatter={(value) => `${value / 1000}k`}
+            />
+            <YAxis 
+                yAxisId="right" 
+                orientation="right" 
+                stroke="hsl(var(--chart-2))" 
+                tickFormatter={(value) => `${new Intl.NumberFormat('en-IN', { notation: 'compact', compactDisplay: 'short' }).format(value)}`}
+            />
+            <ChartTooltip 
+              cursor={false} 
+              content={
+                <ChartTooltipContent 
+                    formatter={(value, name) => (
+                        <div className="flex flex-col">
+                            <span>{name === 'revenue' 
+                                ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value))
+                                : `${value.toLocaleString()} files`}
+                            </span>
+                        </div>
+                    )}
+                />
+              } 
+            />
+            <Legend verticalAlign="bottom" height={36} />
             <Line
               dataKey="files"
               type="monotone"
@@ -71,6 +102,7 @@ export function TrendsOverviewChart({ data }: TrendsOverviewChartProps) {
               strokeWidth={2}
               dot={false}
               yAxisId="left"
+              name="Files"
             />
             <Line
               dataKey="revenue"
@@ -79,6 +111,7 @@ export function TrendsOverviewChart({ data }: TrendsOverviewChartProps) {
               strokeWidth={2}
               dot={false}
               yAxisId="right"
+              name="Revenue"
             />
           </LineChart>
         </ChartContainer>
