@@ -1,6 +1,7 @@
+
 "use client"
 
-import { CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -41,7 +42,7 @@ export function TrendsOverviewChart({ data }: TrendsOverviewChartProps) {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="aspect-auto h-[350px] w-full">
-          <LineChart
+          <AreaChart
             accessibilityLayer
             data={data}
             margin={{
@@ -95,25 +96,37 @@ export function TrendsOverviewChart({ data }: TrendsOverviewChartProps) {
               } 
             />
             <Legend verticalAlign="bottom" height={36} />
-            <Line
+            <defs>
+                <linearGradient id="colorFiles" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-files)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-files)" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0}/>
+                </linearGradient>
+            </defs>
+            <Area
               dataKey="files"
               type="monotone"
               stroke="var(--color-files)"
+              fillOpacity={1} 
+              fill="url(#colorFiles)"
               strokeWidth={2}
-              dot={false}
               yAxisId="left"
               name="Files"
             />
-            <Line
+            <Area
               dataKey="revenue"
               type="monotone"
               stroke="var(--color-revenue)"
+              fillOpacity={1} 
+              fill="url(#colorRevenue)"
               strokeWidth={2}
-              dot={false}
               yAxisId="right"
               name="Revenue"
             />
-          </LineChart>
+          </AreaChart>
         </ChartContainer>
       </CardContent>
     </Card>
