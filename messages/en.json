@@ -1,0 +1,21 @@
+{
+  "DashboardNav": {
+    "dashboard": "Dashboard",
+    "uploadTrends": "Upload Trends",
+    "revenue": "Revenue",
+    "reports": "Reports",
+    "fileAnalytics": "File Analytics",
+    "askAi": "Ask AI"
+  },
+  "DashboardPage": {
+    "title": "Dashboard",
+    "filesToday": "Files Uploaded Today",
+    "monthlyUploads": "Monthly Uploads",
+    "revenueToday": "Revenue Today",
+    "monthlyRevenue": "Monthly Revenue",
+    "totalFiles": "Total Files",
+    "vsYesterday": "vs yesterday",
+    "vsLastMonth": "vs last month",
+    "allTime": "All-time files uploaded"
+  }
+}
