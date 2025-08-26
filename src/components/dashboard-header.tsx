@@ -17,9 +17,7 @@ import Link from "next/link";
 export function DashboardHeader() {
   return (
     <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-card px-4 md:px-6">
-      <div className="md:hidden">
-        <SidebarTrigger />
-      </div>
+      <SidebarTrigger />
       <div className="flex w-full items-center gap-4">
         <form className="hidden md:flex-1">
             <div className="relative">
