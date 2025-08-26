@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Package, UploadCloud, CalendarDays, TrendingUp, TrendingDown } from "lucide-react";
 import { DailyUploadsChart } from "@/components/charts/daily-uploads";
 import { YearlyDistributionChart } from "@/components/charts/yearly-distribution";
+import { AiInsights } from "@/components/ai-insights";
 
 
 const StatCard = ({ title, value, icon, comparisonText }: { title: string, value: string, icon: React.ReactNode, comparisonText: React.ReactNode }) => (
@@ -80,6 +81,9 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
         <DailyUploadsChart data={dailyUploadsLast7Days} />
         <YearlyDistributionChart data={yearlyData} />
+      </div>
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-1">
+        <AiInsights />
       </div>
     </main>
   );
