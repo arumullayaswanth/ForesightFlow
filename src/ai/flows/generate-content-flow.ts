@@ -30,30 +30,51 @@ export async function generateContent(input: GenerateContentInput): Promise<Gene
   return result;
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateContentPrompt',
+const analysisPrompt = ai.definePrompt({
+  name: 'generateContentAnalysisPrompt',
   input: { schema: GenerateContentInputSchema },
   output: { schema: z.object({
     contentType: z.enum(['image', 'pdf', 'docx', 'unsupported']),
-    prompt: z.string().describe('The detailed prompt for the image/document content.'),
+    prompt: z.string().describe('For an image, this is the generation prompt. For a document, this is the topic or subject.'),
     fileName: z.string().describe('A suitable filename for the generated content.'),
   }) },
   prompt: `You are an intelligent assistant that helps users generate content.
-  Your task is to determine what kind of content the user wants to create (image, PDF, or DOCX) based on their request.
-  You also need to formulate a detailed prompt for the content generation and suggest a filename.
-
+  Your task is to analyze the user's request and determine what kind of content they want to create (image, PDF, or DOCX).
+  
   User Request: "{{{request}}}"
   
-  If the user asks for an image, set contentType to "image" and create a descriptive prompt for an image generation model.
-  If the user asks for a PDF or a text document summary, set contentType to "pdf".
-  If the user asks for a Word document, set contentType to "docx".
-  If the request is unclear or cannot be fulfilled, set contentType to "unsupported".
-
-  The content for documents should be based on the provided ForesightFlow data.
-  Daily Data Summary: Total ${MOCK_DATA.dailyData.length} days of data available.
-  Monthly Data Summary: ${MOCK_DATA.monthlyData.length} months of data available from ${MOCK_DATA.monthlyData[0]?.date} to ${MOCK_DATA.monthlyData[MOCK_DATA.monthlyData.length-1]?.date}.
+  - If the user asks for an image, set contentType to "image" and create a descriptive prompt for an image generation model.
+  - If the user asks for a PDF or a text document (e.g., "summary", "report"), set contentType to "pdf". The prompt should be a clear topic for the document.
+  - If the user asks for a Word document, set contentType to "docx". The prompt should be a clear topic for the document.
+  - If the request is unclear or cannot be fulfilled, set contentType to "unsupported".
+  - Finally, suggest a suitable filename.
   `,
 });
+
+const documentGenerationPrompt = ai.definePrompt({
+    name: 'documentGenerationPrompt',
+    input: { schema: z.object({
+        topic: z.string(),
+        dailyData: z.string(),
+        monthlyData: z.string(),
+    })},
+    output: { format: 'text' },
+    prompt: `You are a data analyst. Your task is to generate a detailed text document based on the provided topic and data.
+
+    Topic: "{{{topic}}}"
+
+    Available Data:
+    - Daily Data Summary: Contains revenue and file uploads for the last year.
+    - Monthly Data Summary: Contains aggregate revenue and file uploads.
+
+    Based on the topic and the data, generate a well-structured and informative document.
+    Use headings, lists, and clear paragraphs.
+    If the topic is "summary of last month's revenue", provide a detailed breakdown and analysis.
+    If the topic is "report on file uploads", analyze the trends and key statistics.
+    Ensure the generated text is comprehensive and directly addresses the user's request.
+    `,
+});
+
 
 const generateContentFlow = ai.defineFlow(
   {
@@ -62,7 +83,7 @@ const generateContentFlow = ai.defineFlow(
     outputSchema: GenerateContentOutputSchema,
   },
   async (input) => {
-    const llmResponse = await prompt(input);
+    const llmResponse = await analysisPrompt(input);
     const analysis = llmResponse.output;
 
     if (!analysis || analysis.contentType === 'unsupported') {
@@ -84,9 +105,20 @@ const generateContentFlow = ai.defineFlow(
       };
     }
 
+    // For documents, generate the actual content first
+    const documentContentResponse = await documentGenerationPrompt({
+        topic: analysis.prompt,
+        dailyData: `Total ${MOCK_DATA.dailyData.length} days of data available.`,
+        monthlyData: ` ${MOCK_DATA.monthlyData.length} months of data available from ${MOCK_DATA.monthlyData[0]?.date} to ${MOCK_DATA.monthlyData[MOCK_DATA.monthlyData.length-1]?.date}.`,
+    });
+    
+    const documentText = documentContentResponse.text;
+
     if (analysis.contentType === 'pdf') {
         const doc = new jspdf();
-        doc.text(analysis.prompt, 10, 10);
+        // Handle multi-line text properly
+        const lines = doc.splitTextToSize(documentText, 180);
+        doc.text(lines, 10, 10);
         const pdfData = doc.output('datauristring');
         return {
             fileDataUri: pdfData,
@@ -98,9 +130,10 @@ const generateContentFlow = ai.defineFlow(
     if (analysis.contentType === 'docx') {
         const zip = new JSZip();
         // A very basic DOCX structure
+        const xmlText = documentText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '</w:t></w:r></w:p><w:p><w:r><w:t>');
         zip.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`);
         zip.folder("_rels")?.file(".rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
-        zip.folder("word")?.file("document.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>${analysis.prompt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</w:t></w:r></w:p></w:body></w:document>`);
+        zip.folder("word")?.file("document.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>${xmlText}</w:t></w:r></w:p></w:body></w:document>`);
 
         const docxContent = await zip.generateAsync({ type: "base64" });
         
