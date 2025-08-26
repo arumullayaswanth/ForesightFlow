@@ -44,7 +44,7 @@ export default function RootLayout({
         >
           <SidebarProvider>
             <Sidebar>
-              <SidebarHeader className="flex items-center gap-2 px-4">
+              <SidebarHeader className="flex flex-row items-center gap-2 px-4">
                 <Image src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpT0ivztMLvT0yBcf1L5qHADQnuo2cmk4kwA&s" alt="ForesightFlow Logo" width={24} height={24} className="text-primary" />
                 <h2 className="text-xl font-semibold text-foreground tracking-tight">
                   ForesightFlow
