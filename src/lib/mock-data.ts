@@ -17,27 +17,62 @@ export type YearlyData = {
     files: number;
 }
 
+export type FileDetail = {
+    id: string;
+    date: string;
+    type: 'Image' | 'Document' | 'Video' | 'Other';
+    size: number; // in KB
+    region: 'Mumbai' | 'Delhi' | 'Bangalore' | 'Chennai' | 'Kolkata';
+};
+
 const ALL_TIME_START_DATE = subYears(new Date(), 6);
 const ALL_TIME_END_DATE = new Date();
 
-function generateRandomData(date: Date): Omit<DailyData, 'date'> {
+const FILE_TYPES: FileDetail['type'][] = ['Image', 'Document', 'Video', 'Other'];
+const REGIONS: FileDetail['region'][] = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata'];
+
+
+// Use a deterministic pseudo-random number based on the date to avoid hydration issues
+const pseudoRandom = (d: Date) => {
+    const t = d.getTime();
+    return (t % 10000) / 10000;
+};
+  
+function generateRandomData(date: Date): { files: number, revenue: number, details: FileDetail[] } {
   const dayOfWeek = date.getDay();
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
   const baseFiles = isWeekend ? 50 : 150;
-  // Use a deterministic pseudo-random number based on the date to avoid hydration issues
-  const pseudoRandom = (d: Date) => {
-    const t = d.getTime();
-    return (t % 10000) / 10000;
-  };
-  const files = baseFiles + Math.floor(pseudoRandom(date) * 50);
-  const revenue = files * (250 + pseudoRandom(date) * 200); 
-  return { files, revenue };
+  
+  const filesCount = baseFiles + Math.floor(pseudoRandom(date) * 50);
+  const revenue = filesCount * (250 + pseudoRandom(date) * 200); 
+  
+  const details: FileDetail[] = [];
+  for(let i = 0; i < filesCount; i++) {
+    const seed = new Date(date.getTime() + i * 1000); // Unique seed for each file
+    details.push({
+        id: `file_${seed.getTime()}`,
+        date: format(date, 'yyyy-MM-dd'),
+        type: FILE_TYPES[Math.floor(pseudoRandom(seed) * FILE_TYPES.length)],
+        size: Math.floor(pseudoRandom(seed) * 5000) + 100, // 100KB to 5.1MB
+        region: REGIONS[Math.floor(pseudoRandom(seed) * REGIONS.length)],
+    });
+  }
+
+  return { files: filesCount, revenue, details };
 }
 
-const allTimeDailyData: DailyData[] = eachDayOfInterval({ start: ALL_TIME_START_DATE, end: ALL_TIME_END_DATE }).map(date => ({
-    date: format(date, 'yyyy-MM-dd'),
-    ...generateRandomData(date)
+const allTimeDetailedData = eachDayOfInterval({ start: ALL_TIME_START_DATE, end: ALL_TIME_END_DATE }).map(date => {
+    return generateRandomData(date);
+});
+
+const allTimeDailyData: DailyData[] = allTimeDetailedData.map((d, i) => ({
+    date: format(subDays(ALL_TIME_END_DATE, i), 'yyyy-MM-dd'),
+    files: d.files,
+    revenue: d.revenue
 })).reverse();
+
+const allFileDetails: FileDetail[] = allTimeDetailedData.flatMap(d => d.details);
+
 
 function calculatePercentageChange(current: number, previous: number): number {
     if (previous === 0) {
@@ -119,4 +154,30 @@ const dailyUploadsLast7Days = dailyData.slice(0, 7).map(d => ({
     files: d.files
 })).reverse();
 
-export const MOCK_DATA = { stats, dailyUploadsLast7Days, monthlyData, yearlyData, dailyData: allTimeDailyData };
+// Analytics data for the new page
+const fileTypeDistribution = allFileDetails.reduce((acc, file) => {
+    acc[file.type] = (acc[file.type] || 0) + 1;
+    return acc;
+}, {} as Record<string, number>);
+
+const fileTypeData = Object.entries(fileTypeDistribution).map(([name, value]) => ({ name, value }));
+
+const uploadsByRegion = allFileDetails.reduce((acc, file) => {
+    acc[file.region] = (acc[file.region] || 0) + 1;
+    return acc;
+}, {} as Record<string, number>);
+
+const regionData = Object.entries(uploadsByRegion).map(([name, value]) => ({ name, value }));
+
+const totalSize = allFileDetails.reduce((acc, file) => acc + file.size, 0);
+const avgFileSize = totalSize / allFileDetails.length;
+
+const analytics = {
+    fileTypeData,
+    regionData,
+    avgFileSize,
+    totalFiles: allFileDetails.length
+};
+
+
+export const MOCK_DATA = { stats, dailyUploadsLast7Days, monthlyData, yearlyData, dailyData: allTimeDailyData, analytics };
