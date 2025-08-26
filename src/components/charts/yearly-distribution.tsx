@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -31,6 +32,9 @@ const COLORS = [
   "#6366f1",
   "#ec4899",
   "#14b8a6",
+  "#8b5cf6",
+  "#ef4444",
+  "#10b981",
 ];
 
 type YearlyDistributionChartProps = {

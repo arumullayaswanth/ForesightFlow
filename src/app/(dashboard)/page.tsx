@@ -1,15 +1,27 @@
+
+"use client"
+
+import { useState } from "react";
+import { DateRange } from "react-day-picker";
 import { getMockData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Package, UploadCloud, CalendarDays } from "lucide-react";
 import { DailyUploadsChart } from "@/components/charts/daily-uploads";
 import { TrendsOverviewChart } from "@/components/charts/trends-overview";
 import { YearlyDistributionChart } from "@/components/charts/yearly-distribution";
+import { DateRangePicker } from "@/components/date-range-picker";
 
 export default function DashboardPage() {
-  const { stats, dailyUploadsLast7Days, monthlyData, yearlyData } = getMockData();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
+  const { stats, dailyUploadsLast7Days, monthlyData, yearlyData } = getMockData(dateRange);
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <DateRangePicker date={dateRange} onDateChange={setDateRange} />
+      </div>
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -45,19 +57,19 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
             <p className="text-xs text-muted-foreground">
-              Generated over 6 years
+              Generated over selected period
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">6-Year Summary</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Files</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.sixYearTotalFiles.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              Total files uploaded
+              Total files uploaded in period
             </p>
           </CardContent>
         </Card>

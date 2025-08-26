@@ -1,4 +1,4 @@
-import { subDays, format, subYears, eachDayOfInterval, getMonth, getYear, eachMonthOfInterval } from 'date-fns';
+import { subDays, format, subYears, eachDayOfInterval, getMonth, getYear, eachMonthOfInterval, startOfDay, endOfDay, startOfYear, endOfYear, subMonths } from 'date-fns';
 
 export type DailyData = {
   date: string;
@@ -17,8 +17,13 @@ export type YearlyData = {
     files: number;
 }
 
-const START_DATE = subYears(new Date(), 6);
-const END_DATE = new Date();
+export type DateRange = {
+    from: Date;
+    to: Date;
+}
+
+const ALL_TIME_START_DATE = subYears(new Date(), 6);
+const ALL_TIME_END_DATE = new Date();
 
 function generateRandomData(date: Date): Omit<DailyData, 'date'> {
   const dayOfWeek = date.getDay();
@@ -29,13 +34,21 @@ function generateRandomData(date: Date): Omit<DailyData, 'date'> {
   return { files, revenue };
 }
 
-export function getMockData() {
-    const dailyData: DailyData[] = eachDayOfInterval({ start: START_DATE, end: END_DATE }).map(date => ({
-        date: format(date, 'yyyy-MM-dd'),
-        ...generateRandomData(date)
-    }));
+const allTimeDailyData: DailyData[] = eachDayOfInterval({ start: ALL_TIME_START_DATE, end: ALL_TIME_END_DATE }).map(date => ({
+    date: format(date, 'yyyy-MM-dd'),
+    ...generateRandomData(date)
+}));
 
-    const monthlyData: MonthlyData[] = eachMonthOfInterval({ start: START_DATE, end: END_DATE}).map(monthDate => {
+export function getMockData(dateRange?: DateRange) {
+    const startDate = dateRange ? dateRange.from : ALL_TIME_START_DATE;
+    const endDate = dateRange ? dateRange.to : ALL_TIME_END_DATE;
+
+    const dailyData: DailyData[] = allTimeDailyData.filter(d => {
+        const date = new Date(d.date);
+        return date >= startOfDay(startDate) && date <= endOfDay(endDate);
+    });
+
+    const monthlyData: MonthlyData[] = eachMonthOfInterval({ start: startDate, end: endDate}).map(monthDate => {
         const month = getMonth(monthDate);
         const year = getYear(monthDate);
         const daysInMonth = dailyData.filter(d => getMonth(new Date(d.date)) === month && getYear(new Date(d.date)) === year);
@@ -47,7 +60,7 @@ export function getMockData() {
         }
     });
 
-    const yearlyData: YearlyData[] = Array.from({ length: 7 }, (_, i) => getYear(START_DATE) + i).map(year => {
+    const yearlyData: YearlyData[] = Array.from({ length: getYear(endDate) - getYear(startDate) + 1 }, (_, i) => getYear(startDate) + i).map(year => {
         const yearData = dailyData.filter(d => getYear(new Date(d.date)) === year);
         return {
             year,
@@ -57,18 +70,15 @@ export function getMockData() {
 
     const today = new Date();
     const todayData = dailyData.find(d => d.date === format(today, 'yyyy-MM-dd')) || { files: 0, revenue: 0 };
-    const thisMonth = getMonth(today);
-    const thisYear = getYear(today);
-    const thisMonthData = dailyData.filter(d => getMonth(new Date(d.date)) === thisMonth && getYear(new Date(d.date)) === thisYear);
     
     const stats = {
         filesToday: todayData.files,
-        monthlyUploads: thisMonthData.reduce((acc, curr) => acc + curr.files, 0),
+        monthlyUploads: monthlyData.find(m => m.date === format(today, 'MMM yy'))?.files || 0,
         totalRevenue: dailyData.reduce((acc, curr) => acc + curr.revenue, 0),
         sixYearTotalFiles: dailyData.reduce((acc, curr) => acc + curr.files, 0),
     };
 
-    const dailyUploadsLast7Days = dailyData.slice(-7).map(d => ({
+    const dailyUploadsLast7Days = dailyData.slice(Math.max(dailyData.length - 7, 0)).map(d => ({
         date: format(new Date(d.date), 'MMM dd'),
         files: d.files
     }));
