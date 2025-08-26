@@ -1,12 +1,16 @@
 
 'use client';
 
+import { useState } from "react";
 import { getMockData } from "@/lib/data";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { ArrowDownToLine } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 interface DailyData {
     date: string;
@@ -22,6 +26,7 @@ interface jsPDFWithAutoTable extends jsPDF {
 
 export default function ReportsPage() {
     const { dailyData } = getMockData();
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
     const generatePDF = (rowData: DailyData) => {
         const doc = new jsPDF() as jsPDFWithAutoTable;
@@ -101,11 +106,44 @@ export default function ReportsPage() {
             },
         },
     ]
+    
+    const filteredData = selectedDate
+        ? dailyData.filter(d => d.date === format(selectedDate, 'yyyy-MM-dd'))
+        : dailyData;
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <h1 className="text-2xl font-semibold">Reports</h1>
-            <DataTable columns={columns} data={dailyData} />
+            <div className="grid gap-4 md:grid-cols-4 md:gap-8">
+                <div className="md:col-span-1">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Filter by Date</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Calendar
+                                mode="single"
+                                selected={selectedDate}
+                                onSelect={setSelectedDate}
+                                className="rounded-md border p-0"
+                            />
+                             {selectedDate && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-4 w-full"
+                                    onClick={() => setSelectedDate(undefined)}
+                                >
+                                    Clear
+                                </Button>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+                <div className="md:col-span-3">
+                    <DataTable columns={columns} data={filteredData} />
+                </div>
+            </div>
         </main>
     );
 }
