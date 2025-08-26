@@ -5,7 +5,7 @@ import { useState } from "react";
 import { getMockData } from "@/lib/data";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { ArrowDownToLine, Calendar as CalendarIcon } from "lucide-react";
+import { ArrowDownToLine, Calendar as CalendarIcon, FileDown } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Calendar } from "@/components/ui/calendar";
@@ -63,6 +63,38 @@ export default function ReportsPage() {
         doc.save(`report-${rowData.date}.pdf`);
     };
 
+    const generateCSV = (data: DailyData[]) => {
+        if (!data.length) return;
+
+        const headers = ["Date", "Files Uploaded", "Revenue (INR)"];
+        const csvRows = [
+            headers.join(','),
+            ...data.map(row => [
+                `"${row.date}"`,
+                row.files,
+                row.revenue
+            ].join(','))
+        ];
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        
+        const dateRange = selectedDate 
+            ? format(selectedDate, 'yyyy-MM-dd') 
+            : data.length > 1 
+                ? `${format(new Date(data[data.length - 1].date), 'yyyy-MM-dd')}_to_${format(new Date(data[0].date), 'yyyy-MM-dd')}`
+                : 'full-report';
+
+        link.setAttribute('download', `report-${dateRange}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+
     const columns = [
         {
             accessorKey: "date",
@@ -101,7 +133,7 @@ export default function ReportsPage() {
                         onClick={() => generatePDF(rowData)}
                     >
                         <ArrowDownToLine className="mr-2 h-4 w-4" />
-                        Download
+                        Download PDF
                     </Button>
                 )
             },
@@ -110,7 +142,7 @@ export default function ReportsPage() {
     
     const filteredData = selectedDate
         ? dailyData.filter(d => d.date === format(selectedDate, 'yyyy-MM-dd'))
-        : dailyData;
+        : [...dailyData].reverse();
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -147,6 +179,10 @@ export default function ReportsPage() {
                             Clear
                         </Button>
                     )}
+                     <Button variant="outline" onClick={() => generateCSV(filteredData)}>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Export as CSV
+                    </Button>
                 </div>
             </div>
             <DataTable columns={columns} data={filteredData} />
