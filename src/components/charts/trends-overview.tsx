@@ -85,14 +85,12 @@ export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps
               cursor={false} 
               content={
                 <ChartTooltipContent 
-                    formatter={(value, name) => (
-                        <div className="flex flex-col">
-                            <span>{name === 'revenue' 
-                                ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value))
-                                : `${value.toLocaleString()} files`}
-                            </span>
-                        </div>
-                    )}
+                    formatter={(value, name) => {
+                      if (name === 'revenue') {
+                        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value))
+                      }
+                      return `${Number(value).toLocaleString()} files`
+                    }}
                 />
               } 
             />
@@ -125,7 +123,7 @@ export function TrendsOverviewChart({ data, children }: TrendsOverviewChartProps
               fill="url(#colorRevenue)"
               strokeWidth={2}
               yAxisId="right"
-              name="Revenue"
+              name="revenue"
             />
           </AreaChart>
         </ChartContainer>
