@@ -1,26 +1,18 @@
 
-"use client"
-
-import { useState } from "react";
-import { DateRange } from "react-day-picker";
 import { getMockData } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Package, UploadCloud, CalendarDays } from "lucide-react";
 import { DailyUploadsChart } from "@/components/charts/daily-uploads";
 import { TrendsOverviewChart } from "@/components/charts/trends-overview";
 import { YearlyDistributionChart } from "@/components/charts/yearly-distribution";
-import { DateRangePicker } from "@/components/date-range-picker";
 
 export default function DashboardPage() {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-
-  const { stats, dailyUploadsLast7Days, monthlyData, yearlyData } = getMockData(dateRange);
+  const { stats, dailyUploadsLast7Days, monthlyData, yearlyData } = getMockData();
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <DateRangePicker date={dateRange} onDateChange={setDateRange} />
       </div>
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <Card>

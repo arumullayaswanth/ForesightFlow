@@ -17,11 +17,6 @@ export type YearlyData = {
     files: number;
 }
 
-export type DateRange = {
-    from: Date;
-    to: Date;
-}
-
 const ALL_TIME_START_DATE = subYears(new Date(), 6);
 const ALL_TIME_END_DATE = new Date();
 
@@ -39,14 +34,11 @@ const allTimeDailyData: DailyData[] = eachDayOfInterval({ start: ALL_TIME_START_
     ...generateRandomData(date)
 }));
 
-export function getMockData(dateRange?: DateRange) {
-    const startDate = dateRange ? dateRange.from : ALL_TIME_START_DATE;
-    const endDate = dateRange ? dateRange.to : ALL_TIME_END_DATE;
+export function getMockData() {
+    const startDate = ALL_TIME_START_DATE;
+    const endDate = ALL_TIME_END_DATE;
 
-    const dailyData: DailyData[] = allTimeDailyData.filter(d => {
-        const date = new Date(d.date);
-        return date >= startOfDay(startDate) && date <= endOfDay(endDate);
-    });
+    const dailyData: DailyData[] = allTimeDailyData;
 
     const monthlyData: MonthlyData[] = eachMonthOfInterval({ start: startDate, end: endDate}).map(monthDate => {
         const month = getMonth(monthDate);
